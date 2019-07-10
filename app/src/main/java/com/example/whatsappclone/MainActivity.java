@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -18,7 +19,14 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
@@ -65,6 +73,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+
     }
 
     private void userIsLoggedIn() {
@@ -83,8 +93,15 @@ public class MainActivity extends AppCompatActivity {
 
     private void verifySignInCode(){
         String codeEntered = mCodeEntered.getText().toString();
-        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(mCodeSent, codeEntered);
-        signInWithPhoneAuthCredential(credential);
+        try {
+
+            PhoneAuthCredential credential = PhoneAuthProvider.getCredential(mCodeSent, codeEntered);
+            signInWithPhoneAuthCredential(credential);
+        } catch (Exception e) {
+            Log.i("exception",e.toString());
+            Toast.makeText(MainActivity.this,"Invalid credentials",Toast.LENGTH_LONG).show();
+        }
+
     }
 
 
@@ -97,13 +114,40 @@ public class MainActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
 
-                            FirebaseUser user = task.getResult().getUser();
+                            final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-                            if(user!=null){
-                                startActivity(new Intent(MainActivity.this,MainPageActivity.class));
-                                finish();
-                                return;
-                            }
+                            final DatabaseReference mDatabaseReference = FirebaseDatabase.getInstance().getReference().child("user").child(user.getUid());
+
+                            mDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+
+                                        Map<String,Object> userMap = new HashMap<>();
+
+                                        userMap.put("Name",user.getDisplayName());
+                                        userMap.put("PhoneNumber",user.getPhoneNumber());
+
+                                        mDatabaseReference.updateChildren(userMap);
+
+
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                }
+                            });
+
+                            userIsLoggedIn();
+
+//                            FirebaseUser user = task.getResult().getUser();
+//
+//                            if(user!=null){
+//                                startActivity(new Intent(MainActivity.this,MainPageActivity.class));
+//                                finish();
+//                                return;
+//                            }
                             // ...
                         } else {
                             // Sign in failed, display a message and update the UI
@@ -120,8 +164,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void sendVerificationCode() {
 
-       // String phoneNumber = mPhoneNumber.getText().toString();
-        String phoneNumber = "+966543511355";
+       String phoneNumber = mPhoneNumber.getText().toString();
+        //String phoneNumber = "+966543511355";
 
         if(phoneNumber.isEmpty()){
             mPhoneNumber.setError("Phone number is required");

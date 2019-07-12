@@ -76,6 +76,7 @@ public class ContactListActivity extends AppCompatActivity {
 
             mContacts.add(singleContact);
             getUserDetails(singleContact);
+            Log.d(TAG, "getContactList: "+ userName);
         }
 
 
@@ -85,6 +86,9 @@ public class ContactListActivity extends AppCompatActivity {
 
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("user");
         Query query = databaseReference.orderByChild("PhoneNumber").equalTo(user.getUserPhoneNumber());
+
+        Log.d(TAG, "getUserDetails: user "+ user.getUserName());
+
 
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -103,6 +107,16 @@ public class ContactListActivity extends AppCompatActivity {
                         Log.d(TAG, "onDataChange: "+ userPhoneNumber);
 
                         User singleUser = new User(userName, userPhoneNumber);
+
+                        Log.d(TAG, "onDataChange: "+ userName);
+
+                        if(userName.equals(userPhoneNumber)){
+                            for(User contactIterator:mContacts){
+                                if(contactIterator.getUserPhoneNumber().equals(singleUser.getUserPhoneNumber())){
+                                    singleUser.setUserName(contactIterator.getUserName());
+                                }
+                            }
+                        }
 
                         mUsers.add(singleUser);
                         initRecycleView();

@@ -72,7 +72,7 @@ public class ContactListActivity extends AppCompatActivity {
             userPhoneNumber = userPhoneNumber.replace("(", "");
             userPhoneNumber = userPhoneNumber.replace(")", "");
 
-            User singleContact = new User(userName, userPhoneNumber);
+            User singleContact = new User("",userName, userPhoneNumber);
 
             mContacts.add(singleContact);
             getUserDetails(singleContact);
@@ -84,7 +84,7 @@ public class ContactListActivity extends AppCompatActivity {
 
     private void getUserDetails(User user) {
 
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("user");
+        final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("user");
         Query query = databaseReference.orderByChild("PhoneNumber").equalTo(user.getUserPhoneNumber());
 
         Log.d(TAG, "getUserDetails: user "+ user.getUserName());
@@ -106,9 +106,9 @@ public class ContactListActivity extends AppCompatActivity {
                             userPhoneNumber = childSnapshot.child("PhoneNumber").getValue().toString();
                         Log.d(TAG, "onDataChange: "+ userPhoneNumber);
 
-                        User singleUser = new User(userName, userPhoneNumber);
+                        User singleUser = new User(childSnapshot.getKey(),userName, userPhoneNumber);
 
-                        Log.d(TAG, "onDataChange: "+ userName);
+                        Log.d(TAG, "user id: "+ childSnapshot.getKey());
 
                         if(userName.equals(userPhoneNumber)){
                             for(User contactIterator:mContacts){

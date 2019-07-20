@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/chat_layout"
+    android:id="@+id/message_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -13,21 +13,12 @@
         android:layout_height="wrap_content"
         android:padding="15dp">
 
-
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/chat_user_image"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:src="@mipmap/ic_launcher" />
-
-
         <TextView
-            android:id="@+id/chat_user_name_view"
+            android:id="@+id/message_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginLeft="16dp"
-            android:layout_toRightOf="@id/chat_user_image"
             android:hint="name"
             android:textColor="#000"
             android:textSize="18dp" />

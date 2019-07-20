@@ -1,5 +1,7 @@
 package com.example.whatsappclone.adapters;
 
+import android.database.Cursor;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -48,10 +50,14 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
 
                 String chatKey = FirebaseDatabase.getInstance().getReference().child("chat").push().getKey();
 
+                //String Username =
+
+
                 FirebaseDatabase.getInstance().getReference().child("user").child(FirebaseAuth.getInstance().getUid()).child("chat").child(chatKey).setValue(true);
                 FirebaseDatabase.getInstance().getReference().child("user").child(mUsers.get(i).getUserId()).child("chat").child(chatKey).setValue(true);
 
                 Log.d(TAG, "onClick: "+ mUsers.get(i).getUserId());
+                Log.d(TAG, "onClick: "+ FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber());
 
 
             }

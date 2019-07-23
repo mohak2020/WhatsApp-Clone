@@ -81,7 +81,8 @@ public class MainPageActivity extends AppCompatActivity {
                 if(dataSnapshot.exists()){
                     for(DataSnapshot childSnapshot:dataSnapshot.getChildren()){
 
-
+//
+                        //
 
                         Chat singleChat = new Chat(childSnapshot.getKey(),"");
                         boolean exists = false;

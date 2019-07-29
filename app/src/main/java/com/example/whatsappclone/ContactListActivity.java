@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.example.whatsappclone.adapters.UserListAdapter;
 import com.example.whatsappclone.model.User;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -48,6 +49,7 @@ public class ContactListActivity extends AppCompatActivity {
 
         getContactList();
         initRecycleView();
+        Log.d(TAG, "onClick: "+ FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber());
 
     }
 
@@ -87,7 +89,7 @@ public class ContactListActivity extends AppCompatActivity {
         final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("user");
         Query query = databaseReference.orderByChild("PhoneNumber").equalTo(user.getUserPhoneNumber());
 
-        Log.d(TAG, "getUserDetails: user "+ user.getUserName());
+        Log.d(TAG, "getUserDetails: user "+ user.getUserPhoneNumber());
 
 
         query.addListenerForSingleValueEvent(new ValueEventListener() {

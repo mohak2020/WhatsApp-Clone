@@ -15,8 +15,8 @@
         android:theme="@style/AppTheme">
         <activity android:name=".MessageActivity"></activity>
         <activity android:name=".ContactListActivity" />
-        <activity android:name=".MainPageActivity" />
-        <activity android:name=".MainActivity">
+        <activity android:name=".ChatActivity" />
+        <activity android:name=".WelcomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

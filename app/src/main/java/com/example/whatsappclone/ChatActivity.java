@@ -31,9 +31,9 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-public class MainPageActivity extends AppCompatActivity {
+public class ChatActivity extends AppCompatActivity {
 
-    private static final String TAG = "MainPageActivity";
+    private static final String TAG = "ChatActivity";
 
     Button mContactButton;
     ArrayList<Chat> mChatList;
@@ -113,92 +113,6 @@ public class MainPageActivity extends AppCompatActivity {
 
     }
 
-    private void getContactList() {
-
-
-        Cursor usersContactInfo = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,null,null,null,null);
-
-        while (usersContactInfo.moveToNext()) {
-
-            String userName = usersContactInfo.getString(usersContactInfo.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-            String userPhoneNumber = usersContactInfo.getString(usersContactInfo.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-
-            userPhoneNumber = userPhoneNumber.replace(" ", "");
-            userPhoneNumber = userPhoneNumber.replace("-", "");
-            userPhoneNumber = userPhoneNumber.replace("(", "");
-            userPhoneNumber = userPhoneNumber.replace(")", "");
-
-            User singleContact = new User("",userName, userPhoneNumber);
-//
-//            mContacts.add(singleContact);
-            //getUserDetails(singleContact);
-//            Log.d(TAG, "getContactList: "+ userName);
-            Log.d(TAG, "getContactList: "+userName);
-        }
-
-
-    }
-
-
-    private void getUserDetails(User user) {
-
-        final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("user");
-        Query query = databaseReference.orderByChild("PhoneNumber").equalTo(user.getUserPhoneNumber());
-
-        Log.d(TAG, "getUserDetails: user "+ user.getUserName());
-
-
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-                if(dataSnapshot.exists()){
-                    String userName="";
-                    String userPhoneNumber ="";
-
-                    for(DataSnapshot childSnapshot : dataSnapshot.getChildren()){
-                        if(childSnapshot.child("Name").getValue()!=null)
-                            userName = childSnapshot.child("Name").getValue().toString();
-
-                        if(childSnapshot.child("PhoneNumber").getValue()!=null)
-                            userPhoneNumber = childSnapshot.child("PhoneNumber").getValue().toString();
-                        Log.d(TAG, "onDataChange: "+ userPhoneNumber);
-
-                        User singleUser = new User(childSnapshot.getKey(),userName, userPhoneNumber);
-
-                        Log.d(TAG, "user id: "+ childSnapshot.getKey());
-
-                        if(userName.equals(userPhoneNumber)){
-                            for(User contactIterator:mContacts){
-                                if(contactIterator.getUserPhoneNumber().equals(singleUser.getUserPhoneNumber())){
-                                    singleUser.setUserName(contactIterator.getUserName());
-                                }
-                            }
-                        }
-
-//                        mUsers.add(singleUser);
-//                        initRecycleView();
-                        return;
-
-                    }
-                }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-    }
-
-    private void getUserName(Chat chatId){
-        final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("user");
-
-        Query query = databaseReference.orderByChild("chat").equalTo(chatId.getChatId());
-
-
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

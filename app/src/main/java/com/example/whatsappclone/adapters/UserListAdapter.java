@@ -53,10 +53,10 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
                 //String Username =
 
 
-                FirebaseDatabase.getInstance().getReference().child("user").child(FirebaseAuth.getInstance().getUid()).child("chat").child(chatKey).setValue(true);
+                FirebaseDatabase.getInstance().getReference().child("user").child(FirebaseAuth.getInstance().getUid()).child("chat").child(chatKey).setValue(mUsers.get(i).getUserName());
                 FirebaseDatabase.getInstance().getReference().child("user").child(mUsers.get(i).getUserId()).child("chat").child(chatKey).setValue(true);
 
-                Log.d(TAG, "onClick: "+ mUsers.get(i).getUserId());
+                Log.d(TAG, "onClick: "+ mUsers.get(i).getUserPhoneNumber());
                 Log.d(TAG, "onClick: "+ FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber());
 
 

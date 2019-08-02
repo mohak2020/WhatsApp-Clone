@@ -12,9 +12,15 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.example.whatsappclone.R;
+import com.example.whatsappclone.model.Chat;
+import com.example.whatsappclone.model.Contacts;
 import com.example.whatsappclone.model.User;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.w3c.dom.Text;
 
@@ -48,13 +54,52 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
             @Override
             public void onClick(View v) {
 
-                String chatKey = FirebaseDatabase.getInstance().getReference().child("chat").push().getKey();
+                final String chatKey = FirebaseDatabase.getInstance().getReference().child("chat").push().getKey();
 
-                //String Username =
-
+                Log.d(TAG, "onClick chat key: "+ chatKey);
 
                 FirebaseDatabase.getInstance().getReference().child("user").child(FirebaseAuth.getInstance().getUid()).child("chat").child(chatKey).setValue(mUsers.get(i).getUserName());
-                FirebaseDatabase.getInstance().getReference().child("user").child(mUsers.get(i).getUserId()).child("chat").child(chatKey).setValue(true);
+
+
+
+                DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("user").child(mUsers.get(i).getUserId()).child("contactList");
+                databaseReference.addValueEventListener(new ValueEventListener() {
+
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                        String chatKey = FirebaseDatabase.getInstance().getReference().child("chat").push().getKey();
+//
+//                        FirebaseDatabase.getInstance().getReference().child("user").child(FirebaseAuth.getInstance().getUid()).child("chat").child(chatKey).setValue(mUsers.get(i).getUserName());
+
+                        for(DataSnapshot contacts:dataSnapshot.getChildren()){
+
+                            Contacts contactUser = contacts.getValue(Contacts.class);
+                            String receiveName = contactUser.getUserName();
+                            String receiverNumber = contactUser.getUserPhoneNumber();
+
+
+                            Log.d(TAG, "onDataChange: "+receiveName);
+                            Log.d(TAG, "onDataChange: "+ FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber());
+                            Log.d(TAG, "onDataChange: "+ receiverNumber);
+                           // FirebaseDatabase.getInstance().getReference().child("user").child(mUsers.get(i).getUserId()).child("chat").child(chatKey).setValue(receiveName);
+
+                            if(FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber().equals(receiverNumber))
+                            FirebaseDatabase.getInstance().getReference().child("user").child(mUsers.get(i).getUserId()).child("chat").child(chatKey).setValue(receiveName);
+
+                        }
+//                        String receiveName = dataSnapshot.getRef().getKey();
+//                        Log.d(TAG, "onDataChange: "+receiveName);
+//                        FirebaseDatabase.getInstance().getReference().child("user").child(mUsers.get(i).getUserId()).child("chat").child(chatKey).setValue(receiveName);
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+               // String receiverName = FirebaseDatabase.getInstance().getReference().child(FirebaseAuth.getInstance().getUid()).child("contactList");
+
 
                 Log.d(TAG, "onClick: "+ mUsers.get(i).getUserPhoneNumber());
                 Log.d(TAG, "onClick: "+ FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber());

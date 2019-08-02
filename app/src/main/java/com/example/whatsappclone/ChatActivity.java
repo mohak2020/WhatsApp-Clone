@@ -84,7 +84,9 @@ public class ChatActivity extends AppCompatActivity {
 //
                         //
 
-                        Chat singleChat = new Chat(childSnapshot.getKey(),"");
+                        Chat singleChat = new Chat(childSnapshot.getKey().toString(),childSnapshot.getValue().toString());
+
+                        Log.d(TAG, "onDataChange: "+childSnapshot.getKey().toString());
                         boolean exists = false;
 
                         for(Chat chatIterator: mChatList){

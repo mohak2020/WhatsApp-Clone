@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.example.whatsappclone.adapters.UserListAdapter;
 import com.example.whatsappclone.model.User;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -24,6 +25,8 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ContactListActivity extends AppCompatActivity {
 
@@ -49,7 +52,8 @@ public class ContactListActivity extends AppCompatActivity {
 
         getContactList();
         initRecycleView();
-        Log.d(TAG, "onClick: "+ FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber());
+        //addUsersToDatabase();
+        Log.d(TAG, "onClick: " + FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber());
 
     }
 
@@ -62,7 +66,7 @@ public class ContactListActivity extends AppCompatActivity {
         }
 
 
-        Cursor usersContactInfo = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,null,null,null,null);
+        Cursor usersContactInfo = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
 
         while (usersContactInfo.moveToNext()) {
 
@@ -74,11 +78,11 @@ public class ContactListActivity extends AppCompatActivity {
             userPhoneNumber = userPhoneNumber.replace("(", "");
             userPhoneNumber = userPhoneNumber.replace(")", "");
 
-            User singleContact = new User("",userName, userPhoneNumber);
+            User singleContact = new User("", userName, userPhoneNumber);
 
             mContacts.add(singleContact);
             getUserDetails(singleContact);
-            Log.d(TAG, "getContactList: "+ userName);
+            Log.d(TAG, "getContactList: " + userName);
         }
 
 
@@ -89,32 +93,34 @@ public class ContactListActivity extends AppCompatActivity {
         final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("user");
         Query query = databaseReference.orderByChild("PhoneNumber").equalTo(user.getUserPhoneNumber());
 
-        Log.d(TAG, "getUserDetails: user "+ user.getUserPhoneNumber());
+        Log.d(TAG, "getUserDetails: user " + user.getUserPhoneNumber());
 
 
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                if(dataSnapshot.exists()){
-                    String userName="";
-                    String userPhoneNumber ="";
+                Log.d(TAG, "onDataChange: ");
 
-                    for(DataSnapshot childSnapshot : dataSnapshot.getChildren()){
-                        if(childSnapshot.child("Name").getValue()!=null)
+                if (dataSnapshot.exists()) {
+                    String userName = "";
+                    String userPhoneNumber = "";
+
+                    for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
+                        if (childSnapshot.child("Name").getValue() != null)
                             userName = childSnapshot.child("Name").getValue().toString();
 
-                        if(childSnapshot.child("PhoneNumber").getValue()!=null)
+                        if (childSnapshot.child("PhoneNumber").getValue() != null)
                             userPhoneNumber = childSnapshot.child("PhoneNumber").getValue().toString();
-                        Log.d(TAG, "onDataChange: "+ userPhoneNumber);
+                        Log.d(TAG, "onDataChange: " + userPhoneNumber);
 
-                        User singleUser = new User(childSnapshot.getKey(),userName, userPhoneNumber);
+                        User singleUser = new User(childSnapshot.getKey(), userName, userPhoneNumber);
 
-                        Log.d(TAG, "user id: "+ childSnapshot.getKey());
+                        Log.d(TAG, "user id: " + childSnapshot.getKey());
 
-                        if(userName.equals(userPhoneNumber)){
-                            for(User contactIterator:mContacts){
-                                if(contactIterator.getUserPhoneNumber().equals(singleUser.getUserPhoneNumber())){
+                        if (userName.equals(userPhoneNumber)) {
+                            for (User contactIterator : mContacts) {
+                                if (contactIterator.getUserPhoneNumber().equals(singleUser.getUserPhoneNumber())) {
                                     singleUser.setUserName(contactIterator.getUserName());
                                 }
                             }
@@ -136,6 +142,45 @@ public class ContactListActivity extends AppCompatActivity {
         });
     }
 
+    private void addUsersToDatabase() {
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("user").child(user.getUid()).child("contactList");
+                Map<String, Object> userMap = new HashMap<>();
+                for (int i=0; i<mContacts.size();i++) {
+
+                    userMap.put("userName",mContacts.get(i).getUserName());
+
+                    userMap.put("userPhoneNumber",mContacts.get(i).getUserPhoneNumber());
+
+                    databaseReference.push().setValue(userMap);
+
+
+                }
+//        databaseReference.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//
+//                Map<String, Object> userMap = new HashMap<>();
+//                for (int i=0; i<mContacts.size();i++) {
+//
+//                    userMap.put("Name",mContacts.get(i).getUserName());
+//
+//                    userMap.put("PhoneNumber",mContacts.get(i).getUserPhoneNumber());
+//
+//                    databaseReference.updateChildren(userMap);
+//
+//
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//
+//            }
+//        });
+    }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
@@ -150,10 +195,10 @@ public class ContactListActivity extends AppCompatActivity {
         }
     }
 
-    private void initRecycleView(){
+    private void initRecycleView() {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setHasFixedSize(true);
-         mAdapter = new UserListAdapter(mUsers);
+        mAdapter = new UserListAdapter(mUsers);
         mRecyclerView.setAdapter(mAdapter);
     }
 

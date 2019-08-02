@@ -41,7 +41,7 @@ public class ChatAdapter  extends RecyclerView.Adapter<ChatAdapter.ViewHolder>{
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder viewHolder, final int i) {
 
-        viewHolder.userNameView.setText(mChatList.get(i).getChatId());
+        viewHolder.userNameView.setText(mChatList.get(i).getUserName());
         Log.d(TAG, "onBindViewHolder: "+mChatList.get(i).getChatId() );
 
         viewHolder.mLayout.setOnClickListener(new View.OnClickListener() {

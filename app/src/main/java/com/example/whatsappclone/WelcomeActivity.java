@@ -69,6 +69,7 @@ public class WelcomeActivity extends AppCompatActivity {
                     mDatabaseReference = FirebaseDatabase.getInstance().getReference().child("user").child(user.getUid());
 
                     getContactList();
+                    addUsersToDatabase();
 
                     mDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
@@ -77,13 +78,14 @@ public class WelcomeActivity extends AppCompatActivity {
                             Map<String,Object> userMap = new HashMap<>();
 
 
-                            for(User contactIterator:mContacts){
-                                if(contactIterator.getUserPhoneNumber().equals(user.getPhoneNumber())){
-                                   // singleUser.setUserName(contactIterator.getUserName());
-                                    userMap.put("Name",contactIterator.getUserName());
-                                    Log.d(TAG, "onDataChange: "+contactIterator.getUserName());
-                                }
-                            }
+//                            for(User contactIterator:mContacts){
+//                                if(contactIterator.getUserPhoneNumber().equals(user.getPhoneNumber())){
+//                                   // singleUser.setUserName(contactIterator.getUserName());
+//                                    userMap.put("Name",contactIterator.getUserName());
+//                                    Log.d(TAG, "onDataChange: "+contactIterator.getUserName());
+//                                }
+//                            }
+                            userMap.put("Name",user.getPhoneNumber());
 
                             userMap.put("PhoneNumber",user.getPhoneNumber());
 
@@ -154,6 +156,8 @@ public class WelcomeActivity extends AppCompatActivity {
         };
 
 
+
+
     }
 
     private void getContactList() {
@@ -185,6 +189,23 @@ public class WelcomeActivity extends AppCompatActivity {
         }
 
 
+    }
+
+    private void addUsersToDatabase() {
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("user").child(user.getUid()).child("contactList");
+        Map<String, Object> userMap = new HashMap<>();
+        for (int i = 0; i < mContacts.size(); i++) {
+
+            userMap.put("userName", mContacts.get(i).getUserName());
+
+            userMap.put("userPhoneNumber", mContacts.get(i).getUserPhoneNumber());
+
+            databaseReference.push().setValue(userMap);
+
+
+        }
     }
 
     @Override
